@@ -1,0 +1,33 @@
+/*
+RockAnticheat - multicomplex SA:MP anti-cheat system
+with innovative technologies and infallible verdicts.
+
+Developed by savvin & 0Z0SK0
+
+(c) 2023
+*/
+#pragma once
+
+#include "../includes.h"
+
+#include "util/network.h"
+
+class Config
+{
+public:
+	static std::string URL_REPOSITORY;
+	static std::string AES_KEY;
+	static std::string AES_IV;
+	
+	// TIMING
+	static DWORD MEMORY_CHECK_SLEEP;
+	static DWORD WINDOW_CHECK_SLEEP;
+	static DWORD MODULES_CHECK_SLEEP;
+	static DWORD SAMPFUNCS_CHECK_SLEEP;
+	static DWORD MEMORY_PATTERN_CHECK_SLEEP;
+	static DWORD DEBUGGER_CHECK_SLEEP;
+
+	static DWORD LONGPOOL_GET_SLEEP;
+	static DWORD ACTIVITY_UPDATE_SLEEP;
+
+};
