@@ -1,5 +1,3 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 // //////////////////////////////////////////////////////////
 // md5.cpp
 // Copyright (c) 2014,2015 Stephan Brumme. All rights reserved.
