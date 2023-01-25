@@ -5,6 +5,45 @@ VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rockAC", "rockAC.vcxproj", "{93ED696C-D11C-48EC-9380-6215646BD765}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "third-party", "third-party", "{81CF6549-1209-45C1-A826-BF1110BC75FF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "curl", "curl", "{19ABC694-4277-4551-87F5-B22AA94D582C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "include", "include", "{90659635-0785-401A-ABCC-1422F9A5B05D}"
+	ProjectSection(SolutionItems) = preProject
+		third-party\curl\include\curl.h = third-party\curl\include\curl.h
+		third-party\curl\include\curlver.h = third-party\curl\include\curlver.h
+		third-party\curl\include\easy.h = third-party\curl\include\easy.h
+		third-party\curl\include\header.h = third-party\curl\include\header.h
+		third-party\curl\include\mprintf.h = third-party\curl\include\mprintf.h
+		third-party\curl\include\multi.h = third-party\curl\include\multi.h
+		third-party\curl\include\options.h = third-party\curl\include\options.h
+		third-party\curl\include\stdcheaders.h = third-party\curl\include\stdcheaders.h
+		third-party\curl\include\system.h = third-party\curl\include\system.h
+		third-party\curl\include\typecheck-gcc.h = third-party\curl\include\typecheck-gcc.h
+		third-party\curl\include\urlapi.h = third-party\curl\include\urlapi.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{94054448-C112-49EC-AE7E-A1DCD2ECD51F}"
+	ProjectSection(SolutionItems) = preProject
+		third-party\curl\lib\libcurl.exp = third-party\curl\lib\libcurl.exp
+		third-party\curl\lib\libcurl.lib = third-party\curl\lib\libcurl.lib
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "zlib", "zlib", "{675836E0-16CF-4B9A-B80E-63B05A6E2236}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "include", "include", "{21062F0B-B8B7-4549-8A96-C21B6C77F5DC}"
+	ProjectSection(SolutionItems) = preProject
+		third-party\zlib\include\zconf.h = third-party\zlib\include\zconf.h
+		third-party\zlib\include\zlib.h = third-party\zlib\include\zlib.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{F696A7A8-1F19-411D-8AC3-16DE1256ACE2}"
+	ProjectSection(SolutionItems) = preProject
+		third-party\zlib\lib\libz-static.lib = third-party\zlib\lib\libz-static.lib
+		third-party\zlib\lib\libz.lib = third-party\zlib\lib\libz.lib
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -24,6 +63,14 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{19ABC694-4277-4551-87F5-B22AA94D582C} = {81CF6549-1209-45C1-A826-BF1110BC75FF}
+		{90659635-0785-401A-ABCC-1422F9A5B05D} = {19ABC694-4277-4551-87F5-B22AA94D582C}
+		{94054448-C112-49EC-AE7E-A1DCD2ECD51F} = {19ABC694-4277-4551-87F5-B22AA94D582C}
+		{675836E0-16CF-4B9A-B80E-63B05A6E2236} = {81CF6549-1209-45C1-A826-BF1110BC75FF}
+		{21062F0B-B8B7-4549-8A96-C21B6C77F5DC} = {675836E0-16CF-4B9A-B80E-63B05A6E2236}
+		{F696A7A8-1F19-411D-8AC3-16DE1256ACE2} = {675836E0-16CF-4B9A-B80E-63B05A6E2236}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {297E25DA-0D16-48AA-B071-5F5223D25766}
