@@ -45,8 +45,8 @@ Developed by savvin & 0Z0SK0
 #pragma comment(lib, "crypt32.lib")
 #include <Iphlpapi.h>
 #pragma comment(lib, "iphlpapi.lib")
-#include "curl/include/curl.h"
-#pragma comment (lib, "curl/lib/libcurl.lib")
+#include "third-party/libcurl/include/curl.h"
+#pragma comment (lib, "third-party/libcurl/lib/libcurl.lib")
 
 // local
 #include "third-party/XorString.h"

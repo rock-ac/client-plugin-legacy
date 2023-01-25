@@ -25,8 +25,8 @@
 #include <unordered_set>
 #include <cerrno>
 #include <cstring>
-#include <zlib/include/zlib.h>
-#pragma comment(lib, "zlib/lib/libz-static.lib")
+#include "libz/include/zlib.h"
+#pragma comment(lib, "libz/lib/libz-static.lib")
 
 #include "mine.h"
 
