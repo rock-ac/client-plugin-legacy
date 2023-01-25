@@ -26,7 +26,7 @@
 #include <cerrno>
 #include <cstring>
 #include "libz/include/zlib.h"
-#pragma comment(lib, "libz/lib/libz-static.lib")
+#pragma comment(lib, "third-party/libz/lib/libz-static.lib")
 
 #include "mine.h"
 
