@@ -23,14 +23,29 @@ size_t Core::curlWriteToString(void* contents, size_t size, size_t nmemb, void* 
 	((std::string*)userp)->append((char*)contents, size * nmemb);
 	return size * nmemb;
 }
-std::string Core::utf16ToUTF8(const std::wstring& s)
+
+std::string Core::UTF16ToUTF8(const std::wstring str)
 {
-	const int size = ::WideCharToMultiByte(1251, 0, s.c_str(), -1, NULL, 0, 0, NULL);
+	std::string convertedString;
+	int requiredSize = LI_FN(WideCharToMultiByte).get()(1251, 0, str.c_str(), -1, NULL, 0, 0, NULL);
+	if (requiredSize > 0) {
+		std::vector<wchar_t> buffer(requiredSize);
+		LI_FN(WideCharToMultiByte).get()(1251, 0, str.c_str(), -1, &buffer[0], requiredSize, 0, NULL);
+		convertedString.assign(buffer.begin(), buffer.end() - 1);
+	}
+	return convertedString;
+}
 
-	std::vector<char> buf(size);
-	::WideCharToMultiByte(1251, 0, s.c_str(), -1, &buf[0], size, 0, NULL);
-
-	return std::string(&buf[0]);
+std::wstring Core::UTF8ToUTF16(std::string str) 
+{
+	std::wstring convertedString;
+	int requiredSize = LI_FN(MultiByteToWideChar).get()(NULL, 0, str.c_str(), -1, 0, 0);
+	if (requiredSize > 0) {
+		std::vector<wchar_t> buffer(requiredSize);
+		LI_FN(MultiByteToWideChar).get()(NULL, 0, str.c_str(), -1, &buffer[0], requiredSize);
+		convertedString.assign(buffer.begin(), buffer.end() - 1);
+	}
+	return convertedString;
 }
 
 #ifndef _delayimp_h
@@ -142,17 +157,6 @@ DWORD Core::GetProgAndPublisherInfo(PCMSG_SIGNER_INFO pSignerInfo, Core::PSPROG_
 	}
 
 	return LI_FN(GetLastError).get()();
-}
-
-std::wstring Core::string_to_wstring(std::string str) {
-	std::wstring convertedString;
-	int requiredSize = LI_FN(MultiByteToWideChar).get()(NULL, 0, str.c_str(), -1, 0, 0);
-	if (requiredSize > 0) {
-		std::vector<wchar_t> buffer(requiredSize);
-		LI_FN(MultiByteToWideChar).get()(NULL, 0, str.c_str(), -1, &buffer[0], requiredSize);
-		convertedString.assign(buffer.begin(), buffer.end() - 1);
-	}
-	return convertedString;
 }
 
 std::string Core::getCurrentDirectory() {
@@ -372,67 +376,6 @@ BOOL CALLBACK Core::EnumWindowsProcMy(HWND hwnd, LPARAM lParam)
 	return TRUE;
 }
 
-MODULEENTRY32W Core::get_module(const char* modName, DWORD proc_id)
-{
-	HANDLE hSnap = LI_FN(CreateToolhelp32Snapshot).get()(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, proc_id);
-	if (hSnap != INVALID_HANDLE_VALUE) {
-		MODULEENTRY32 modEntry;
-		modEntry.dwSize = sizeof(modEntry);
-		if (LI_FN(Module32FirstW).get()(hSnap, &modEntry)) {
-			do {
-				std::wstring wszModName(modEntry.szModule);
-				std::string injectedmodule(wszModName.begin(), wszModName.end());
-				if (!strcmp(injectedmodule.c_str(), modName)) {
-					LI_FN(CloseHandle).get()(hSnap);
-					return modEntry;
-				}
-			} while (LI_FN(Module32NextW).get()(hSnap, &modEntry));
-		}
-	}
-	return MODULEENTRY32();
-}
-
-template<typename T> T RPM(HANDLE g_process_handle, SIZE_T address) {
-	T buffer; LI_FN(ReadProcessMemory).get()(g_process_handle, (void*)address, &buffer, sizeof(T), nullptr);
-	return buffer;
-}
-
-void str_replace_all(std::string& subject, const std::string& search, const std::string& replace) {
-	size_t pos = 0;
-	while ((pos = subject.find(search, pos)) != std::string::npos) {
-		subject.replace(pos, search.length(), replace);
-		pos += replace.length();
-	}
-}
-
-//now accepts ida-style, single and double question marks, lower case and uppercase
-uintptr_t Core::find_pattern(HANDLE hProcess, const MODULEENTRY32& module, const std::string& str, std::string ida, int offset, int extra, bool relative = true)
-{
-	ida.insert(0, " ");
-	std::transform(ida.begin(), ida.end(), ida.begin(), tolower);
-	str_replace_all(ida, XorStr(" ??"), XorStr(" ?"));
-	str_replace_all(ida, XorStr(" ?"), XorStr(" ??"));
-	str_replace_all(ida, XorStr(" "), "");
-
-	std::string pattern;
-
-	for (unsigned int i = 0; i < ida.size(); i += 2) {
-		std::string word = ida.substr(i, 2);
-		if (word == XorStr("??")) pattern += XorStr(".");
-		else pattern += (char)strtol(word.c_str(), NULL, 16);
-	}
-
-	uintptr_t address;
-	std::smatch sm;
-	std::regex_search(str, sm, std::regex(pattern));
-	if (sm.size() == 0) return 0x0;
-	else address = sm.position(0);
-
-	address += (uintptr_t)module.modBaseAddr + offset;
-	address = RPM<uint32_t>(hProcess, address) + extra;
-	return relative ? address - (uintptr_t)module.modBaseAddr : address;
-}
-
 std::string Core::HWNDToString(HWND inputA)
 {
 	std::wstring s;
@@ -461,4 +404,9 @@ BOOL Core::IsElevated()
 		LI_FN(CloseHandle).get()(hToken);
 	}
 	return fRet;
+}
+
+std::string Core::encryptAES(std::string content)
+{
+
 }

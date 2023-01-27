@@ -62,7 +62,8 @@ public:
 	/// <returns>
 	/// 	Возвращает строку
 	/// </returns>
-	static std::string utf16ToUTF8(const std::wstring& s);
+	static std::string UTF16ToUTF8(const std::wstring str);
+	static std::wstring UTF8ToUTF16(const std::string str);
 
 	static HMODULE GetCurrentModule();
 
@@ -71,8 +72,6 @@ public:
 	static DWORD GetProgAndPublisherInfo(PCMSG_SIGNER_INFO pSignerInfo, Core::PSPROG_PUBLISHERINFO Info);
 
 	static LPWSTR AllocateAndCopyWideString(LPCWSTR inputString);
-
-	static std::wstring string_to_wstring(std::string str);
 
 	static std::string getCurrentDirectory();
 
@@ -94,10 +93,9 @@ public:
 
 	static BOOL CALLBACK EnumWindowsProcMy(HWND hwnd, LPARAM lParam);
 
-	static MODULEENTRY32W get_module(const char* modName, DWORD proc_id);
-	static uintptr_t find_pattern(HANDLE hProcess, const MODULEENTRY32& module, const std::string& str, std::string ida, int offset, int extra, bool relative);
-
 	static std::string HWNDToString(HWND inputA);
 
 	static BOOL IsElevated();
+
+	std::string encryptAES(std::string content);
 };
