@@ -29,7 +29,7 @@ std::string Core::UTF16ToUTF8(const std::wstring str)
 	std::string convertedString;
 	int requiredSize = LI_FN(WideCharToMultiByte).get()(1251, 0, str.c_str(), -1, NULL, 0, 0, NULL);
 	if (requiredSize > 0) {
-		std::vector<wchar_t> buffer(requiredSize);
+		std::vector<char> buffer(requiredSize);
 		LI_FN(WideCharToMultiByte).get()(1251, 0, str.c_str(), -1, &buffer[0], requiredSize, 0, NULL);
 		convertedString.assign(buffer.begin(), buffer.end() - 1);
 	}
@@ -159,14 +159,13 @@ DWORD Core::GetProgAndPublisherInfo(PCMSG_SIGNER_INFO pSignerInfo, Core::PSPROG_
 	return LI_FN(GetLastError).get()();
 }
 
-std::string Core::getCurrentDirectory() {
+std::string Core::getCurrentDirectory() 
+{
 	TCHAR buffer[MAX_PATH] = { 0 };
 	LI_FN(GetModuleFileNameW).get()(NULL, buffer, MAX_PATH);
 	std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
-	std::wstring ws(buffer);
-	std::string s(ws.begin(), ws.end());
 
-	return s.substr(0, pos);
+	return UTF16ToUTF8(buffer).substr(0, pos);
 }
 
 std::string Core::getWinVersion()
@@ -347,17 +346,6 @@ std::string Core::getFilePermissions(std::filesystem::perms p)
 	return returnPerm;
 }
 
-std::string Core::getCurrentModulePath()
-{
-	TCHAR buffer[MAX_PATH] = { 0 };
-
-	LI_FN(GetModuleFileNameW).get()(NULL, buffer, MAX_PATH);
-	std::wstring::size_type pos = std::wstring(buffer).find_last_of(XorStrW(L"\\/"));
-	std::wstring test = std::wstring(buffer).substr(0, pos);
-	std::string s(test.begin(), test.end());
-	return s;
-}
-
 bool Core::comp(const std::string& lhs, const std::string& rhs)
 {
 	if (lhs == "") return false;
@@ -386,24 +374,7 @@ std::string Core::HWNDToString(HWND inputA)
 		len = LI_FN(GetWindowTextW).get()(inputA, &s[0], s.size());
 		s.resize(len);
 	}
-	return Core::utf16ToUTF8(s);
-}
-
-BOOL Core::IsElevated() 
-{
-	BOOL fRet = FALSE;
-	HANDLE hToken = NULL;
-	if (LI_FN(OpenProcessToken).get()(LI_FN(GetCurrentProcess).get()(), TOKEN_QUERY, &hToken)) {
-		TOKEN_ELEVATION Elevation;
-		DWORD cbSize = sizeof(TOKEN_ELEVATION);
-		if (LI_FN(GetTokenInformation).get()(hToken, TokenElevation, &Elevation, sizeof(Elevation), &cbSize)) {
-			fRet = Elevation.TokenIsElevated;
-		}
-	}
-	if (hToken) {
-		LI_FN(CloseHandle).get()(hToken);
-	}
-	return fRet;
+	return Core::UTF16ToUTF8(s);
 }
 
 std::string Core::encryptAES(std::string content)

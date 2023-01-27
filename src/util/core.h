@@ -58,11 +58,20 @@ public:
 	/// Конвертация из wstring в string
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	/// <param name="(const std::wstring s)">wide-строка</param>
+	/// <param name="(const std::wstring str)">wide-строка</param>
 	/// <returns>
 	/// 	Возвращает строку
 	/// </returns>
 	static std::string UTF16ToUTF8(const std::wstring str);
+
+	/// <summary>
+	/// Конвертация из string в wstring
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="(const std::string str)">строка</param>
+	/// <returns>
+	/// 	Возвращает wide-строку
+	/// </returns>
 	static std::wstring UTF8ToUTF16(const std::string str);
 
 	static HMODULE GetCurrentModule();
@@ -94,8 +103,6 @@ public:
 	static BOOL CALLBACK EnumWindowsProcMy(HWND hwnd, LPARAM lParam);
 
 	static std::string HWNDToString(HWND inputA);
-
-	static BOOL IsElevated();
 
 	std::string encryptAES(std::string content);
 };
