@@ -26,7 +26,7 @@
 
 # Rock Anti-Cheat client plugin
 
-![status](https://github.com/rock-ac/client-plugin/workflows/Build/badge.svg)
+![status](https://github.com/rock-ac/client-plugin/workflows/MSBuild/badge.svg)
 
 ## Structure
 
