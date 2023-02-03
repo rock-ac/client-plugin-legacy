@@ -32,11 +32,10 @@
 
 | Path | Content |
 | ---- | ------- |
-| `src/` | Core SDK headers (stable between versions) |
+| `src/` | Source Code |
 | `src/game` | Game components (some checkings, interaction with game) |
-| `src/system` | System components |
+| `src/system` | System components (modules, processes and other iterate, |
 | `src/util` | Util components |
-| `Shared/NetCode/` | Netcode headers (RPC and packet read/write structures, NOT stable between versions) |
 | `third-party/` | Some third-party source code |
 | `third-party/libcurl/` | Libcurl Library |
 | `third-party/libz/` | ZLib library |
