@@ -178,6 +178,8 @@ long Modules::verifyMicrosoftSignature(LPCSTR path)
 		hFile = LI_FN(CreateFileW).get()(pwszSourceFile, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		if (hFile == INVALID_HANDLE_VALUE)
 		{
+			Log::write(XorStr("[ERROR] failed to CreateFileW"));
+			Game::TerminateGame(1, XorStr("0x1000017"));
 			return false;
 		}
 
@@ -282,27 +284,27 @@ bool Modules::inspectModules(DWORD pID)
 						if (it == allowedModules.end())
 						{
 							// ѕробуем проверить наличие сертификата Windows
-							if (!verifyMicrosoftSignature(Core::utf16ToUTF8(path).c_str()))
+							if (!verifyMicrosoftSignature(Core::UTF16ToUTF8(path).c_str()))
 							{
 								// пробуем проверить среди одобренных издателей
-								if (!verifyPublisher(Core::utf16ToUTF8(path).c_str()))
+								if (!verifyPublisher(Core::UTF16ToUTF8(path).c_str()))
 								{
 									// get base address of module
 									std::ostringstream baseAddress;
 									baseAddress << (DWORD)LI_FN(GetModuleHandleW).safe()(szModName);
 
-									std::string newpath = Core::utf16ToUTF8(path);
+									std::string newpath = Core::UTF16ToUTF8(path);
 									std::replace(newpath.begin(), newpath.end(), '\\', '/');
 
 									Report::ModuleInfo info;
 									info.name = injectedmodule;
 									info.path = newpath;
-									info.hash = Core::getFileMD5(Core::utf16ToUTF8(path));
-									info.lastChange = Core::getLastWriteTime(std::filesystem::last_write_time(Core::utf16ToUTF8(path)));
-									info.permission = Core::getFilePermissions(std::filesystem::status(Core::utf16ToUTF8(path)).permissions());
+									info.hash = Core::getFileMD5(Core::UTF16ToUTF8(path));
+									info.lastChange = Core::getLastWriteTime(std::filesystem::last_write_time(Core::UTF16ToUTF8(path)));
+									info.permission = Core::getFilePermissions(std::filesystem::status(Core::UTF16ToUTF8(path)).permissions());
 									info.base_address = baseAddress.str();
-									info.publisher = getPublisher(Core::utf16ToUTF8(path).c_str());
-									info.size = std::to_string(std::filesystem::file_size(Core::utf16ToUTF8(path)));
+									info.publisher = getPublisher(Core::UTF16ToUTF8(path).c_str());
+									info.size = std::to_string(std::filesystem::file_size(Core::UTF16ToUTF8(path)));
 
 									Report::sendModuleReport(&info);
 								}
@@ -317,7 +319,7 @@ bool Modules::inspectModules(DWORD pID)
 							const size_t BufferSize = 65536;
 							char* buffer = new char[BufferSize];
 
-							mFile.open(Core::utf16ToUTF8(path).c_str(), std::ios::in | std::ios::binary);
+							mFile.open(Core::UTF16ToUTF8(path).c_str(), std::ios::in | std::ios::binary);
 							input = &mFile;
 
 							// process file
@@ -335,18 +337,18 @@ bool Modules::inspectModules(DWORD pID)
 								std::ostringstream baseAddress;
 								baseAddress << (DWORD)LI_FN(GetModuleHandleW).get()(szModName);
 
-								std::string newpath = Core::utf16ToUTF8(path);
+								std::string newpath = Core::UTF16ToUTF8(path);
 								std::replace(newpath.begin(), newpath.end(), '\\', '/');
 
 								Report::ModuleInfo info;
 								info.name = injectedmodule;
 								info.path = newpath;
-								info.hash = Core::getFileMD5(Core::utf16ToUTF8(path));
-								info.lastChange = Core::getLastWriteTime(std::filesystem::last_write_time(Core::utf16ToUTF8(path)));
-								info.permission = Core::getFilePermissions(std::filesystem::status(Core::utf16ToUTF8(path)).permissions());
+								info.hash = Core::getFileMD5(Core::UTF16ToUTF8(path));
+								info.lastChange = Core::getLastWriteTime(std::filesystem::last_write_time(Core::UTF16ToUTF8(path)));
+								info.permission = Core::getFilePermissions(std::filesystem::status(Core::UTF16ToUTF8(path)).permissions());
 								info.base_address = baseAddress.str();
-								info.publisher = getPublisher(Core::utf16ToUTF8(path).c_str());
-								info.size = std::to_string(std::filesystem::file_size(Core::utf16ToUTF8(path)));
+								info.publisher = getPublisher(Core::UTF16ToUTF8(path).c_str());
+								info.size = std::to_string(std::filesystem::file_size(Core::UTF16ToUTF8(path)));
 
 								Report::sendModuleReport(&info);
 							}
@@ -369,10 +371,27 @@ bool Modules::inspectModules(DWORD pID)
 
 void Modules::thread()
 {
+	Log::write(XorStr("Modules::thread() started"));
 	Network::vectorstring_sendRequest((Config::URL_REPOSITORY + XorStr("/additional/modules/whitelist_publisher.php")).c_str(), allowedPublisher);
 	Network::vectorstring_sendRequest((Config::URL_REPOSITORY + XorStr("/additional/modules/whitelist.php")).c_str(), allowedModules);
 	Network::vectorstring_sendRequest((Config::URL_REPOSITORY + XorStr("/additional/modules/whitelist_hash.php")).c_str(), allowedHash);
 	
+	if (allowedPublisher.empty())
+	{
+		Log::write(XorStr("[ERROR] Modules::allowedPublisher empty"));
+		Game::TerminateGame(1, XorStr("0x1000018"));
+	}
+	if (allowedModules.empty())
+	{
+		Log::write(XorStr("[ERROR] Modules::allowedModules empty"));
+		Game::TerminateGame(1, XorStr("0x1000019"));
+	}
+	if (allowedHash.empty())
+	{
+		Log::write(XorStr("[ERROR] Modules::allowedHash empty"));
+		Game::TerminateGame(1, XorStr("0x1000020"));
+	}
+
 	DWORD pid = Core::getProcessID(XorStrW(L"gta_sa.exe"));
 	do
 	{

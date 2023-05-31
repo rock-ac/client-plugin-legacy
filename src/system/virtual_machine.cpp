@@ -74,7 +74,7 @@ std::string GameVirtual::getVMname()
 
     static const VendorIdStr vendors[]{
     "KVMKVMKVM\0\0\0", // KVM 
-    "Microsoft Hv",    // Microsoft Hyper-V or Windows Virtual PC */
+    //"Microsoft Hv",    // Microsoft Hyper-V or Windows Virtual PC */
     "VMwareVMware",    // VMware 
     "XenVMMXenVMM",    // Xen 
     "prl hyperv  ",    // Parallels

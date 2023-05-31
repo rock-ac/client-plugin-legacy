@@ -34,6 +34,7 @@ Developed by savvin & 0Z0SK0
 #include <cstdint>
 #include <comdef.h>
 #include <nmmintrin.h>
+#include <signal.h>
 
 #include <Wbemidl.h>
 #pragma comment(lib, "wbemuuid.lib")
@@ -54,6 +55,7 @@ Developed by savvin & 0Z0SK0
 #include "third-party/lazy_importer.hpp"
 #include "third-party/md5.h"
 #include "third-party/mine.h"
+#include "third-party/json.hpp"
 
 #include "src/game/cleo_check.h"
 #include "src/game/game.h"
@@ -65,11 +67,11 @@ Developed by savvin & 0Z0SK0
 #include "src/util/network.h"
 #include "src/util/report.h"
 #include "src/util/session.h"
+#include "src/util/log.h"
 
 #include "src/system/antidebug.h"
 #include "src/system/hardware.h"
 #include "src/system/memory_integrity.h"
-#include "src/system/memory_pattern.h"
 #include "src/system/virtual_machine.h"
 #include "src/system/window_check.h"
 

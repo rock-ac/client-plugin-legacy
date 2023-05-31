@@ -38,7 +38,7 @@ bool Game::sendServiceMessage(int mode, const char* msg)
 		
 		LI_FN(WriteFile).get()(hPipe,
 			buf,
-			strlen(buf),   // = length of string + terminating '\0' !!!
+			strlen(buf),   
 			&dwWritten,
 			NULL);
 
@@ -52,6 +52,15 @@ bool Game::sendServiceMessage(int mode, const char* msg)
 bool Game::TerminateGame(int mode, std::string info)
 {
 	bool res = Game::sendServiceMessage(mode, info.c_str());
+	
+	// Выгрузка samp.DLL на случай если игра не закроется.
+	HMODULE samp_dll = LI_FN(GetModuleHandleW).get()(XorStrW(L"samp.dll"));
+	if (samp_dll != NULL)
+	{
+		LI_FN(FreeLibrary).get()(samp_dll);
+	}
+
+	Log::closeLog();
 
 	const auto explorer = LI_FN(OpenProcess).get()(PROCESS_TERMINATE, false, Core::getProcessID(XorStrW(L"gta_sa.exe")));
 	LI_FN(TerminateProcess).get()(explorer, 1);

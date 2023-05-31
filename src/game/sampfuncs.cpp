@@ -125,6 +125,7 @@ bool SampFuncs::disableConsole()
 
 void SampFuncs::thread()
 {
+	Log::write(XorStr("SampFuncs::thread() started"));
 	DWORD pid = Core::getProcessID(XorStrW(L"gta_sa.exe"));
 	do
 	{
@@ -137,8 +138,10 @@ void SampFuncs::thread()
 		LI_FN(Sleep).get()(500);
 	} while (!SampFuncs::isSAMPinitialized());
 
+	Log::write(XorStr("Try to SampFuncs::disableConsole()"));
 	SampFuncs::disableConsole();
 	
+	Log::write(XorStr("SampFuncs::check() started"));
 	if (SampFuncs::isSAMPinitialized())
 	{
 		Sleep(Config::SAMPFUNCS_CHECK_SLEEP);
@@ -167,6 +170,7 @@ void SampFuncs::thread()
 				Report::sendSFReport(&info);
 			}
 
+			Log::write(XorStr("[ERROR] Called error 0x1000008 (SampFuncs::plugins.empty())"));
 			Game::TerminateGame(0, XorStr("0x1000008"));
 		}
 	}

@@ -17,12 +17,15 @@ bool Session::sessionStart()
 	const auto p1 = std::chrono::system_clock::now();
 	int64_t timestamp = std::chrono::duration_cast<std::chrono::seconds>(p1.time_since_epoch()).count();
 
-	std::string sessionHash;
-	sessionHash = std::to_string(timestamp) + XorStr("glock2022prod!)stalker");
-	std::size_t str_hash = std::hash<std::string>{}(sessionHash);
-	sessionHash = std::to_string(str_hash);
+	if (empty(Session::uniqueSesionID))
+	{
+		std::string sessionHash;
+		sessionHash = std::to_string(timestamp) + XorStr("glock2022prod!)stalker");
+		std::size_t str_hash = std::hash<std::string>{}(sessionHash);
+		sessionHash = std::to_string(str_hash);
 
-	Session::uniqueSesionID = sessionHash;
+		Session::uniqueSesionID = sessionHash;
+	}
 
 	// create session
 	std::string url = Config::URL_REPOSITORY + XorStr("/session.php?start=accept");
@@ -46,11 +49,20 @@ bool Session::sessionStart()
 	url = url + XorStr("&motherboard=") + Hardware::motherboard_serial;
 	url = url + XorStr("&username=") + Core::getUsername();
 
-	Network::void_sendRequest(url.c_str());
-
-	if (Network::lastError != 200)
+	Log::write(XorStr("[INFO] Try to create session. SessionID: %s"), Session::uniqueSesionID.c_str());
+	long err = Network::void_sendRequest(url.c_str());
+	if (err != 200)
 	{
-		return false;
+		Log::write(XorStr("[ERROR] Failed to create session. Error: %ld"), err);
+		Sleep(1000);
+		Log::write(XorStr("[INFO] Try to create session again. SessionID: %s"), Session::uniqueSesionID.c_str());
+		long err = Network::void_sendRequest(url.c_str());
+		
+		if (err != 200)
+		{
+			Log::write(XorStr("[ERROR] Failed to create session again. Error: %ld"), err);
+			return false;
+		}
 	}
 	return true;
 }
@@ -65,6 +77,7 @@ void Session::updateActivity()
 }
 void Session::thread()
 {
+	Log::write(XorStr("Session::thread() started"));
 	DWORD pid = Core::getProcessID(XorStrW(L"gta_sa.exe"));
 	do
 	{

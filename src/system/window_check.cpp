@@ -66,7 +66,7 @@ static BOOL CALLBACK enumWindowCallback(HWND hWnd, LPARAM lparam) {
                 info.hwnd = strhwndHex;
                 info.visible = LI_FN(IsWindowVisible).get()(hWnd) ? XorStr("true") : XorStr("false");
                 info.description = knownWindowsDescription[index];
-                info.path = Core::utf16ToUTF8(filename);
+                info.path = Core::UTF16ToUTF8(filename);
 
                 Report::sendWindowReport(&info);
             }
@@ -77,12 +77,14 @@ static BOOL CALLBACK enumWindowCallback(HWND hWnd, LPARAM lparam) {
 }
 
 int GameWindow::check() {
-    DWORD pid = Core::getProcessID(XorStrW(L"gta_sa.exe"));
+    Log::write(XorStr("GameWindow::check() started"));
 
+    DWORD pid = Core::getProcessID(XorStrW(L"gta_sa.exe"));
     do
     {
         LI_FN(EnumWindows).get()(enumWindowCallback, NULL);
         LI_FN(Sleep).get()(Config::WINDOW_CHECK_SLEEP);
     } while (pid != 0);
+
     return 0;
 }

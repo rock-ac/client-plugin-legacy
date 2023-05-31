@@ -10,14 +10,10 @@ Developed by savvin & 0Z0SK0
 
 #include "../../includes.h"
 
-class LongPool
+class Log
 {
-private:
-	static std::string lastReceive;
-	static int try_count;
-
 public:
-	static void handleData();
-	static bool getData();
-	static void thread();
+	static void openLog();
+	static void write(const char* fmt, ...);
+	static void closeLog();
 };

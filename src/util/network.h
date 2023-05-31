@@ -34,6 +34,17 @@ public:
 	/// <returns>
 	/// 	<c>true</c> если http-код 200; иначе, <c>false</c>.
 	/// </returns>
+	static DWORD init();
+
+	/// <summary>
+	/// Загружает файл из интернета при помощи libCURL
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="const char* url">Адрес загрузки.</param>
+	/// <param name="const char* out">Путь вывода файла.</param>
+	/// <returns>
+	/// 	<c>true</c> если http-код 200; иначе, <c>false</c>.
+	/// </returns>
 	static bool file_sendRequest(const char* url, const char* out);
 
 	/// <summary>
@@ -44,7 +55,7 @@ public:
 	/// <returns>
 	/// 	<c>Ничего не возвращает</c>.
 	/// </returns>
-	static void void_sendRequest(const char* url);
+	static long void_sendRequest(const char* url);
 
 	/// <summary>
 	/// Отправляет HTTPS-запрос при помощи libCURL

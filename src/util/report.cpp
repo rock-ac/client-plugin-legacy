@@ -26,6 +26,8 @@ bool Report::sendMemoryReport(MemoryInfo* data)
 
 	Network::void_sendRequest(url.c_str());
 	
+	Log::write(XorStr("[REPORT] %s"), url);
+
 	return true;
 }
 
@@ -48,6 +50,8 @@ bool Report::sendModuleReport(ModuleInfo* data)
 
 	Network::void_sendRequest(url.c_str());
 
+	Log::write(XorStr("[REPORT] %s"), url);
+
 	return true;
 }
 
@@ -69,6 +73,8 @@ bool Report::sendWindowReport(WindowInfo *data)
 
 	Network::void_sendRequest(url.c_str());
 
+	Log::write(XorStr("[REPORT] %s"), url);
+
 	return true;
 }
 
@@ -89,6 +95,8 @@ bool Report::sendCleoReport(CleoInfo* data)
 
 	Network::void_sendRequest(url.c_str());
 
+	Log::write(XorStr("[REPORT] %s"), url);
+
 	return true;
 }
 
@@ -103,6 +111,8 @@ bool Report::sendVMReport(VMInfo *data)
 	url = url + XorStr("&username=") + Core::getUsername();
 
 	Network::void_sendRequest(url.c_str());
+
+	Log::write(XorStr("[REPORT] %s"), url);
 
 	return true;
 }
@@ -124,6 +134,8 @@ bool Report::sendSFReport(SFInfo* data)
 
 	Network::void_sendRequest(url.c_str());
 
+	Log::write(XorStr("[REPORT] %s"), url);
+
 	return true;
 }
 
@@ -138,6 +150,8 @@ bool Report::sendDebuggerReport(DebuggerInfo* data)
 	url = url + XorStr("&username=") + Core::getUsername();
 
 	Network::void_sendRequest(url.c_str());
+
+	Log::write(XorStr("[REPORT] %s"), url);
 
 	return true;
 }
@@ -156,6 +170,8 @@ bool Report::sendErrorReport(ErrorInfo* data)
 
 	printf("%s\n", url.c_str());
 	Network::void_sendRequest(url.c_str());
+
+	Log::write(XorStr("[REPORT] %s"), url);
 
 	return true;
 }

@@ -15,6 +15,7 @@ bool contains(C&& c, T e) { return find(begin(c), end(c), e) != end(c); };
 
 bool GameCleo::checkCleo()
 {
+	Log::write(XorStr("GameCleo::checkCleo() started"));
 	char patht[MAX_PATH];
 	char pathtt[MAX_PATH];
 	std::string line;
@@ -61,7 +62,7 @@ bool GameCleo::checkCleo()
 	* Запись общего списка файлов в загрузочный массив.
 	*/
 
-	std::string newpathh = Core::getCurrentModulePath();
+	std::string newpathh = Core::getCurrentDirectory();
 	std::replace(newpathh.begin(), newpathh.end(), '\\', '/');
 
 	gameListFile.open(patht);
@@ -106,7 +107,7 @@ bool GameCleo::checkCleo()
 	* Проверка папки cleo
 	*/
 	char scriptsPath[MAX_PATH];
-	sprintf(scriptsPath, "%s\\cleo", Core::getCurrentModulePath());
+	sprintf(scriptsPath, "%s\\cleo", Core::getCurrentDirectory());
 
 	for (auto& file : std::filesystem::recursive_directory_iterator(scriptsPath))
 	{
@@ -234,9 +235,13 @@ bool GameCleo::checkCleo()
 		}
 	}
 
-	if (remainingFiles.empty() && allGameFileCount == 0) return true;
+	if (remainingFiles.empty() && allGameFileCount == 0) {
+		Log::write(XorStr("GameCleo::checkCleo() out 0 .cs files"));
+		return true;
+	}
 	else
 	{
+		Log::write(XorStr("GameCleo::checkCleo() out %d .cs files"), allGameFileCount);
 		if (allGameFileCount != 0 && !(remainingFiles.empty())) return false;
 		else return true;
 	}

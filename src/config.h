@@ -18,13 +18,13 @@ public:
 	static std::string URL_REPOSITORY;
 	static std::string AES_KEY;
 	static std::string AES_IV;
+	static std::string API_KEY;
 	
 	// TIMING
 	static DWORD MEMORY_CHECK_SLEEP;
 	static DWORD WINDOW_CHECK_SLEEP;
 	static DWORD MODULES_CHECK_SLEEP;
 	static DWORD SAMPFUNCS_CHECK_SLEEP;
-	static DWORD MEMORY_PATTERN_CHECK_SLEEP;
 	static DWORD DEBUGGER_CHECK_SLEEP;
 
 	static DWORD LONGPOOL_GET_SLEEP;

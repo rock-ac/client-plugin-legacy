@@ -74,12 +74,43 @@ public:
 	/// </returns>
 	static std::wstring UTF8ToUTF16(const std::string str);
 
+	/// <summary>
+	/// Получение хэндлера текущей DLL
+	/// </summary>
+	/// <returns>
+	/// 	Возвращает HMODULE
+	/// </returns>
 	static HMODULE GetCurrentModule();
 
+	/// <summary>
+	/// Получение PID процесса в системе
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="(const std::wstring processName)">имя процесса</param>
+	/// <returns>
+	/// 	Возвращает pid в виде DWORD
+	/// </returns>
 	static DWORD getProcessID(const std::wstring& processName);
 
+	/// <summary>
+	/// Получение издателя сертификата из информации о сертификате
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="(PCMSG_SIGNER_INFO pSignerInfo)">SignerInfo</param>
+	/// <param name="(PSPROG_PUBLISHERINFO Info)">Info</param>
+	/// <returns>
+	/// 	Возвращает издателя в виде DWORD
+	/// </returns>
 	static DWORD GetProgAndPublisherInfo(PCMSG_SIGNER_INFO pSignerInfo, Core::PSPROG_PUBLISHERINFO Info);
 
+	/// <summary>
+	/// Конвертация LPCWSTR в LPWSTR 
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="(LPCWSTR inputString)">LPCWSTR-строка</param>
+	/// <returns>
+	/// 	Возвращает LPWSTR
+	/// </returns>
 	static LPWSTR AllocateAndCopyWideString(LPCWSTR inputString);
 
 	static std::string getCurrentDirectory();
@@ -94,8 +125,6 @@ public:
 
 	static std::string getFilePermissions(std::filesystem::perms p);
 
-	static std::string getCurrentModulePath();
-
 	static bool comp(const std::string& lhs, const std::string& rhs);
 
 	static std::string getUsername();
@@ -105,4 +134,6 @@ public:
 	static std::string HWNDToString(HWND inputA);
 
 	std::string encryptAES(std::string content);
+
+	static void loadDefaultLibs();
 };

@@ -34,6 +34,7 @@ WmiQueryResult Hardware::getWmiQueryResult(std::wstring wmiQuery, std::wstring p
     if (FAILED(hres))
     {
         retVal.Error = WmiQueryError::ComInitializationFailure;
+        retVal.error_name = XorStr("ComInitializationFailure");
     }
     else
     {
@@ -48,6 +49,7 @@ WmiQueryResult Hardware::getWmiQueryResult(std::wstring wmiQuery, std::wstring p
             if (FAILED(hres))
             {
                 retVal.Error = WmiQueryError::IWbemLocatorFailure;
+                retVal.error_name = XorStr("IWbemLocatorFailure");
             }
             else
             {
@@ -67,6 +69,7 @@ WmiQueryResult Hardware::getWmiQueryResult(std::wstring wmiQuery, std::wstring p
                 if (FAILED(hres))
                 {
                     retVal.Error = WmiQueryError::IWbemServiceConnectionFailure;
+                    retVal.error_name = XorStr("IWbemServiceConnectionFailure");
                 }
                 else
                 {
@@ -84,6 +87,7 @@ WmiQueryResult Hardware::getWmiQueryResult(std::wstring wmiQuery, std::wstring p
                     if (FAILED(hres))
                     {
                         retVal.Error = WmiQueryError::BlanketProxySetFailure;
+                        retVal.error_name = XorStr("BlanketProxySetFailure");
                     }
                     else
                     {
@@ -98,6 +102,7 @@ WmiQueryResult Hardware::getWmiQueryResult(std::wstring wmiQuery, std::wstring p
                         if (FAILED(hres))
                         {
                             retVal.Error = WmiQueryError::BadQueryFailure;
+                            retVal.error_name = XorStr("BadQueryFailure");
                         }
                         else
                         {
@@ -117,6 +122,7 @@ WmiQueryResult Hardware::getWmiQueryResult(std::wstring wmiQuery, std::wstring p
                                 hr = pclsObj->Get(propNameOfResultObject.c_str(), 0, &vtProp, 0, 0);
                                 if (S_OK != hr) {
                                     retVal.Error = WmiQueryError::PropertyExtractionFailure;
+                                    retVal.error_name = XorStr("PropertyExtractionFailure");
                                 }
                                 else {
                                     BSTR val = vtProp.bstrVal;
@@ -182,43 +188,27 @@ bool Hardware::getMacAddress()
 
 bool Hardware::getDriveGUID()
 {
-    /*wchar_t disks[256];
-    wchar_t* disk;
-    DWORD sizebuf = 256;
-    auto kernel_dll = LI_FN(LoadLibraryA)("kernel32.dll");
-    LI_FN(GetLogicalDriveStringsW).get()(sizebuf, disks);
-    disk = disks;
-    while (*disk)
-    {
-        TCHAR volumeName[MAX_PATH + 1] = { 0 };
-
-        LI_FN(GetVolumeNameForVolumeMountPointW).in_safe(kernel_dll)(disk, volumeName, MAX_PATH);
-        std::wstring test(volumeName);
-        std::string ttest(test.begin(), test.end());
-
-        const std::regex r(XorStr(R"([0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12})"));
-        std::smatch m;
-
-        if (std::regex_search(ttest, m, r)) {
-            Hardware::guid_drives.push_back(m.str());
-        }
-
-        disk = disk + wcslen(disk) + 1;
-    }
-    */
-
     WmiQueryResult res;
     
     res = Hardware::getWmiQueryResult(XorStrW(L"SELECT SerialNumber FROM Win32_PhysicalMedia"), XorStrW(L"SerialNumber"), false);
 
     if (res.Error == WmiQueryError::None) {
         for (const auto& item : res.ResultList) {
-            std::string serial = Core::utf16ToUTF8(item);
+            std::string serial = Core::UTF16ToUTF8(item);
             std::string::iterator end_pos = std::remove(serial.begin(), serial.end(), ' ');
             serial.erase(end_pos, serial.end());
             
             Hardware::guid_drives.push_back(serial);
         }
+    }
+    else if (res.Error != WmiQueryError::None)
+    {
+        Report::ErrorInfo info;
+        info.error = std::to_string(GetLastError());
+        info.call = XorStr("getWmiQueryResult(L\"SELECT SerialNumber FROM Win32_PhysicalMedia\", L\"SerialNumber\", false)");
+        info.ret = res.error_name;
+        info.wh = XorStr("Hardware::getDriveGUID()");
+        Report::sendErrorReport(&info);
     }
 
     // possible fix 0x7000002 error
@@ -228,12 +218,21 @@ bool Hardware::getDriveGUID()
 
         if (res.Error == WmiQueryError::None) {
             for (const auto& item : res.ResultList) {
-                std::string serial = Core::utf16ToUTF8(item);
+                std::string serial = Core::UTF16ToUTF8(item);
                 std::string::iterator end_pos = std::remove(serial.begin(), serial.end(), ' ');
                 serial.erase(end_pos, serial.end());
 
                 Hardware::guid_drives.push_back(serial);
             }
+        }
+        else if (res.Error != WmiQueryError::None)
+        {
+            Report::ErrorInfo info;
+            info.error = std::to_string(GetLastError());
+            info.call = XorStr("getWmiQueryResult(L\"SELECT SerialNumber FROM Win32_DiskDrive\", L\"SerialNumber\", false)");
+            info.ret = res.error_name;
+            info.wh = XorStr("Hardware::getDriveGUID()");
+            Report::sendErrorReport(&info);
         }
     }
 
@@ -264,7 +263,7 @@ bool Hardware::getMotherboardSerial()
 
     if (res.Error == WmiQueryError::None) {
         for (const auto& item : res.ResultList) {
-            std::string serial = Core::utf16ToUTF8(item);
+            std::string serial = Core::UTF16ToUTF8(item);
             std::string::iterator end_pos = std::remove(serial.begin(), serial.end(), ' ');
             serial.erase(end_pos, serial.end());
 
@@ -354,7 +353,7 @@ bool Hardware::getUserGUID()
     res = Hardware::getWmiQueryResult(XorStrW(L"SELECT Manufacturer FROM Win32_BaseBoard"), XorStrW(L"Manufacturer"), false);
     if (res.Error == WmiQueryError::None) {
         for (const auto& item : res.ResultList) {
-            std::string serial = Core::utf16ToUTF8(item);
+            std::string serial = Core::UTF16ToUTF8(item);
             std::string::iterator end_pos = std::remove(serial.begin(), serial.end(), ' ');
             serial.erase(end_pos, serial.end());
 
@@ -366,7 +365,7 @@ bool Hardware::getUserGUID()
     res = Hardware::getWmiQueryResult(XorStrW(L"SELECT Product FROM Win32_BaseBoard"), XorStrW(L"Product"), false);
     if (res.Error == WmiQueryError::None) {
         for (const auto& item : res.ResultList) {
-            std::string serial = Core::utf16ToUTF8(item);
+            std::string serial = Core::UTF16ToUTF8(item);
             std::string::iterator end_pos = std::remove(serial.begin(), serial.end(), ' ');
             serial.erase(end_pos, serial.end());
 
@@ -378,7 +377,7 @@ bool Hardware::getUserGUID()
     res = Hardware::getWmiQueryResult(XorStrW(L"SELECT DeviceID FROM Win32_IDEController"), XorStrW(L"DeviceID"), false);
     if (res.Error == WmiQueryError::None) {
         for (const auto& item : res.ResultList) {
-            std::string serial = Core::utf16ToUTF8(item);
+            std::string serial = Core::UTF16ToUTF8(item);
             std::string::iterator end_pos = std::remove(serial.begin(), serial.end(), ' ');
             serial.erase(end_pos, serial.end());
 
@@ -390,7 +389,7 @@ bool Hardware::getUserGUID()
     res = Hardware::getWmiQueryResult(XorStrW(L"SELECT Name FROM Win32_CPU"), XorStrW(L"Name"), false);
     if (res.Error == WmiQueryError::None) {
         for (const auto& item : res.ResultList) {
-            std::string serial = Core::utf16ToUTF8(item);
+            std::string serial = Core::UTF16ToUTF8(item);
             std::string::iterator end_pos = std::remove(serial.begin(), serial.end(), ' ');
             serial.erase(end_pos, serial.end());
 
@@ -402,7 +401,7 @@ bool Hardware::getUserGUID()
     res = Hardware::getWmiQueryResult(XorStrW(L"SELECT ProcessorId FROM Win32_Processor"), XorStrW(L"ProcessorId"), false);
     if (res.Error == WmiQueryError::None) {
         for (const auto& item : res.ResultList) {
-            std::string serial = Core::utf16ToUTF8(item);
+            std::string serial = Core::UTF16ToUTF8(item);
             std::string::iterator end_pos = std::remove(serial.begin(), serial.end(), ' ');
             serial.erase(end_pos, serial.end());
 
@@ -414,7 +413,7 @@ bool Hardware::getUserGUID()
     res = Hardware::getWmiQueryResult(XorStrW(L"SELECT TotalPhysicalMemory FROM Win32_ComputerSystem"), XorStrW(L"TotalPhysicalMemory"), false);
     if (res.Error == WmiQueryError::None) {
         for (const auto& item : res.ResultList) {
-            std::string serial = Core::utf16ToUTF8(item);
+            std::string serial = Core::UTF16ToUTF8(item);
             std::string::iterator end_pos = std::remove(serial.begin(), serial.end(), ' ');
             serial.erase(end_pos, serial.end());
 

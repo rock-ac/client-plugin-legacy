@@ -11,13 +11,6 @@ Developed by savvin & 0Z0SK0
 #include "util/core.h"
 #include "anticheat.h"
 
-INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-    PSTR lpCmdLine, INT nCmdShow)
-{
-    AntiCheat::Load();
-    return 0;
-}
-
 void start()
 {
     std::thread acThread(AntiCheat::Load);

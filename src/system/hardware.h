@@ -25,6 +25,7 @@ struct WmiQueryResult
 {
     std::vector<std::wstring> ResultList;
     WmiQueryError Error = WmiQueryError::None;
+    std::string error_name;
 };
 
 class Hardware {

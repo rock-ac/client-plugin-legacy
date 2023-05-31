@@ -106,7 +106,6 @@ DWORD Core::GetProgAndPublisherInfo(PCMSG_SIGNER_INFO pSignerInfo, Core::PSPROG_
 	DWORD dwData;
 	BOOL fResult;
 
-
 	__try
 	{
 		for (DWORD n = 0; n < pSignerInfo->AuthAttrs.cAttr; n++)
@@ -114,7 +113,6 @@ DWORD Core::GetProgAndPublisherInfo(PCMSG_SIGNER_INFO pSignerInfo, Core::PSPROG_
 			if (lstrcmpA(SPC_SP_OPUS_INFO_OBJID,
 				pSignerInfo->AuthAttrs.rgAttr[n].pszObjId) == 0)
 			{
-				// Get Size of SPC_SP_OPUS_INFO structure.
 				fResult = LI_FN(CryptDecodeObject).get()(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
 					SPC_SP_OPUS_INFO_OBJID,
 					pSignerInfo->AuthAttrs.rgAttr[n].rgValue[0].pbData,
@@ -124,11 +122,9 @@ DWORD Core::GetProgAndPublisherInfo(PCMSG_SIGNER_INFO pSignerInfo, Core::PSPROG_
 					&dwData);
 				if (!fResult) return LI_FN(GetLastError).get()();
 
-				// Allocate memory for SPC_SP_OPUS_INFO structure.
 				OpusInfo = (PSPC_SP_OPUS_INFO)LI_FN(LocalAlloc).get()(LPTR, dwData);
 				if (!OpusInfo) return LI_FN(GetLastError).get()();
 
-				// Decode and get SPC_SP_OPUS_INFO structure.
 				fResult = LI_FN(CryptDecodeObject).get()(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
 					SPC_SP_OPUS_INFO_OBJID,
 					pSignerInfo->AuthAttrs.rgAttr[n].rgValue[0].pbData,
@@ -138,7 +134,6 @@ DWORD Core::GetProgAndPublisherInfo(PCMSG_SIGNER_INFO pSignerInfo, Core::PSPROG_
 					&dwData);
 				if (!fResult) return LI_FN(GetLastError).get()();
 
-				// Fill in Program Name if present.
 				if (OpusInfo->pwszProgramName)
 				{
 					Info->lpszProgramName =
@@ -380,4 +375,82 @@ std::string Core::HWNDToString(HWND inputA)
 std::string Core::encryptAES(std::string content)
 {
 
+}
+
+void Core::loadDefaultLibs()
+{
+	auto kernel_dll = LI_FN(LoadLibraryA)(XorStr("kernel32.dll"));
+	if (kernel_dll == NULL)
+	{
+		Report::ErrorInfo info;
+		info.error = std::to_string(GetLastError());
+		info.call = XorStr("LoadLibraryA(\"kernel32.dll\")");
+		info.ret = XorStr("NULL");
+		info.wh = XorStr("AntiCheat::Load()");
+		Report::sendErrorReport(&info);
+
+		Log::write(XorStr("[ERROR] Called error 0x1000013 2 (LoadLibraryA(\"kernel32.dll\"))\n\tGetLastError:% ld\n"), GetLastError());
+
+		Game::TerminateGame(1, XorStr("0x1000013 2"));
+	}
+
+	auto user_dll = LI_FN(LoadLibraryA)(XorStr("User32.dll"));
+	if (user_dll == NULL)
+	{
+		Report::ErrorInfo info;
+		info.error = std::to_string(GetLastError());
+		info.call = XorStr("LoadLibraryA(\"User32.dll\")");
+		info.ret = XorStr("NULL");
+		info.wh = XorStr("AntiCheat::Load()");
+		Report::sendErrorReport(&info);
+
+		Log::write(XorStr("[ERROR] Called error 0x1000013 3 (LoadLibraryA(\"User32.dll\"))\n\tGetLastError:% ld\n"), GetLastError());
+
+		Game::TerminateGame(1, XorStr("0x1000013 3"));
+	}
+
+	auto psapi_dll = LI_FN(LoadLibraryA)(XorStr("Psapi.dll"));
+	if (psapi_dll == NULL)
+	{
+		Report::ErrorInfo info;
+		info.error = std::to_string(GetLastError());
+		info.call = XorStr("LoadLibraryA(\"Psapi.dll\")");
+		info.ret = XorStr("NULL");
+		info.wh = XorStr("AntiCheat::Load()");
+		Report::sendErrorReport(&info);
+
+		Log::write(XorStr("[ERROR] Called error 0x1000013 4 (LoadLibraryA(\"Psapi.dll\"))\n\tGetLastError:% ld\n"), GetLastError());
+
+		Game::TerminateGame(1, XorStr("0x1000013 4"));
+	}
+
+	auto advapi_dll = LI_FN(LoadLibraryA)(XorStr("Advapi32.dll"));
+	if (advapi_dll == NULL)
+	{
+		Report::ErrorInfo info;
+		info.error = std::to_string(GetLastError());
+		info.call = XorStr("LoadLibraryA(\"Advapi32.dll\")");
+		info.ret = XorStr("NULL");
+		info.wh = XorStr("AntiCheat::Load()");
+		Report::sendErrorReport(&info);
+
+		Log::write(XorStr("[ERROR] Called error 0x1000013 5 (LoadLibraryA(\"Advapi32.dll\"))\n\tGetLastError:% ld\n"), GetLastError());
+
+		Game::TerminateGame(1, XorStr("0x1000013 5"));
+	}
+
+	auto iphlpapi_dll = LI_FN(LoadLibraryA)(XorStr("Iphlpapi.dll"));
+	if (iphlpapi_dll == NULL)
+	{
+		Report::ErrorInfo info;
+		info.error = std::to_string(GetLastError());
+		info.call = XorStr("LoadLibraryA(\"Iphlpapi.dll\")");
+		info.ret = XorStr("NULL");
+		info.wh = XorStr("AntiCheat::Load()");
+		Report::sendErrorReport(&info);
+
+		Log::write(XorStr("[ERROR] Called error 0x1000013 6 (LoadLibraryA(\"Iphlpapi.dll\"))\n\tGetLastError:% ld\n"), GetLastError());
+
+		Game::TerminateGame(1, XorStr("0x1000013 6"));
+	}
 }

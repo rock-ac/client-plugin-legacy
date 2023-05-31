@@ -14,101 +14,45 @@ HWND AntiCheat::gtaHwnd;
 
 void AntiCheat::Load()
 {
-	LI_FN(AllocConsole).get()();
-	freopen("CONOUT$", "w", stdout);
+	/* FOR DEBUGGING */
+	//LI_FN(AllocConsole).get()();
+	//freopen("CONOUT$", "w", stdout);
 
-	auto kernel_dll = LI_FN(LoadLibraryA)(XorStr("kernel32.dll"));
-	if (kernel_dll == NULL)
+	Log::openLog();
+	Log::write(XorStr("Log::openLog() success"));
+
+	Core::loadDefaultLibs();
+	Log::write(XorStr("Core::loadDefaultLibs() success"));
+
+	DWORD n_init = Network::init();
+	if (n_init != 0)
 	{
-		Report::ErrorInfo info;
-		info.error = std::to_string(GetLastError());
-		info.call = XorStr("LoadLibraryA(\"kernel32.dll\")");
-		info.ret = XorStr("NULL");
-		info.wh = XorStr("AntiCheat::Load()");
-		Report::sendErrorReport(&info);
-
+		Log::write(XorStr("[ERROR] Called error 0x1000013 (Network::Init())\n\tGetLastError: %ld\n"), n_init);
 		Game::TerminateGame(1, XorStr("0x1000013"));
 	}
-
-	auto user_dll	= LI_FN(LoadLibraryA)(XorStr("User32.dll"));
-	if (user_dll == NULL)
-	{
-		Report::ErrorInfo info;
-		info.error = std::to_string(GetLastError());
-		info.call = XorStr("LoadLibraryA(\"User32.dll\")");
-		info.ret = XorStr("NULL");
-		info.wh = XorStr("AntiCheat::Load()");
-		Report::sendErrorReport(&info);
-
-		Game::TerminateGame(1, XorStr("0x1000013"));
-	}
-
-	auto psapi_dll = LI_FN(LoadLibraryA)(XorStr("Psapi.dll"));
-	if (psapi_dll == NULL)
-	{
-		Report::ErrorInfo info;
-		info.error = std::to_string(GetLastError());
-		info.call = XorStr("LoadLibraryA(\"Psapi.dll\")");
-		info.ret = XorStr("NULL");
-		info.wh = XorStr("AntiCheat::Load()");
-		Report::sendErrorReport(&info);
-
-		Game::TerminateGame(1, XorStr("0x1000013"));
-	}
-
-	auto advapi_dll = LI_FN(LoadLibraryA)(XorStr("Advapi32.dll"));
-	if (advapi_dll == NULL)
-	{
-		Report::ErrorInfo info;
-		info.error = std::to_string(GetLastError());
-		info.call = XorStr("LoadLibraryA(\"Advapi32.dll\")");
-		info.ret = XorStr("NULL");
-		info.wh = XorStr("AntiCheat::Load()");
-		Report::sendErrorReport(&info);
-
-		Game::TerminateGame(1, XorStr("0x1000013"));
-	}
-
-	auto iphlpapi_dll = LI_FN(LoadLibraryA)(XorStr("Iphlpapi.dll"));
-	if (iphlpapi_dll == NULL)
-	{
-		Report::ErrorInfo info;
-		info.error = std::to_string(GetLastError());
-		info.call = XorStr("LoadLibraryA(\"Iphlpapi.dll\")");
-		info.ret = XorStr("NULL");
-		info.wh = XorStr("AntiCheat::Load()");
-		Report::sendErrorReport(&info);
-
-		Game::TerminateGame(1, XorStr("0x1000013"));
-	}
-
-	auto libcurl_dll = LI_FN(LoadLibraryA)((Core::getCurrentDirectory() + XorStr("\\libcurl.dll")).c_str());
-	if (libcurl_dll == NULL)
-	{
-		Report::ErrorInfo info;
-		info.error = std::to_string(GetLastError());
-		info.call = XorStr("LoadLibraryA(\"libcurl.dll\")");
-		info.ret = XorStr("NULL");
-		info.wh = XorStr("AntiCheat::Load()");
-		Report::sendErrorReport(&info);
-
-		Game::TerminateGame(1, XorStr("0x1000013"));
-	}
+	Log::write(XorStr("Network::Init() success"));
 
 	const auto explorer = LI_FN(OpenProcess).get()(PROCESS_TERMINATE, false, Core::getProcessID(XorStrW(L"rockACService.exe")));
+	Log::write(XorStr("OpenProcess() success"));
+
 	LI_FN(TerminateProcess).get()(explorer, 1);
+	Log::write(XorStr("TerminateProcess() success"));
+
 	LI_FN(CloseHandle).get()(explorer);
+	Log::write(XorStr("CloseHandle() success"));
 
 	STARTUPINFO info = { sizeof(info) };
 	PROCESS_INFORMATION processInfo;
 
-	std::wstring path = Core::string_to_wstring(Core::getCurrentDirectory() + XorStr("/rockACService.exe"));
+	std::wstring path = Core::UTF8ToUTF16(Core::getCurrentDirectory() + XorStr("/rockACService.exe"));
 	std::wstring cmd = XorStrW(L"");
 
 	if (!LI_FN(CreateProcessW).get()(path.c_str(), &cmd[0], nullptr, nullptr, false, DETACHED_PROCESS, nullptr, nullptr, &info, &processInfo))
 	{
+		Log::write(XorStr("[ERROR] Called error: 0x1000012 (CreateProcessW())"));
 		Game::TerminateGame(1, XorStr("0x1000012"));
 	}
+	Log::write(XorStr("CreateProcessW() success"));
 
 	/*if (!Core::IsElevated())
 	{
@@ -117,45 +61,77 @@ void AntiCheat::Load()
 
 	if (!Hardware::getMacAddress())
 	{
+		Log::write(XorStr("[ERROR] Called error: 0x7000001 (Hardware::getMacAddress())"));
 		Game::TerminateGame(1, XorStr("0x7000001"));
 	}
+	Log::write(XorStr("Hardware::getMacAddress() success"));
+
 	if (!Hardware::getDriveGUID())
 	{
+		Log::write(XorStr("[ERROR] Called error: 0x7000002 (Hardware::getDriveGUID())"));
 		Game::TerminateGame(1, XorStr("0x7000002"));
 	}
+	Log::write(XorStr("Hardware::getDriveGUID() success"));
+
 	if (!Hardware::getCPUHash())
 	{
+		Log::write(XorStr("[ERROR] Called error: 0x7000003 (Hardware::getCPUHash())"));
 		Game::TerminateGame(1, XorStr("0x7000003"));
 	}
+	Log::write(XorStr("Hardware::getCPUHash() success"));
+
 	if (!Hardware::getPCName())
 	{
+		Log::write(XorStr("[ERROR] Called error: 0x7000004 (Hardware::getPCName())"));
 		Game::TerminateGame(1, XorStr("0x7000004"));
 	}
+	Log::write(XorStr("Hardware::getPCName() success"));
+
 	if (!Hardware::getUserGUID()) 
 	{
+		Log::write(XorStr("[ERROR] Called error: 0x7000005 (Hardware::getUserGUID())"));
 		Game::TerminateGame(1, XorStr("0x7000005"));
 	}
+	Log::write(XorStr("Hardware::getUserGUID() success"));
+
 	if (!Hardware::getMotherboardSerial())
 	{
+		Log::write(XorStr("[ERROR] Called error: 0x7000006 (Hardware::getMotherboardSerial())"));
 		Game::TerminateGame(1, XorStr("0x7000006"));
 	}
+	Log::write(XorStr("Hardware::getMotherboardSerial() success"));
 
 	if (!Session::sessionStart())
 	{
+		Log::write(XorStr("[ERROR] Called error: 0x1000010 (Session::sessionStart()) lastNetworkError: %ld"), Network::lastError);
 		Game::TerminateGame(1, XorStr("0x1000010"));
 	}
+	Log::write(XorStr("Session::sessionStart() success"));
 
-	std::thread patternThread(Pattern::thread);
-	patternThread.detach();
+	// print info about pc
+	std::string pc_info;
+	pc_info = XorStr("PC Information:");
+	pc_info = pc_info + XorStr("\nGUID: ") + Hardware::user_guid;
+	pc_info = pc_info + XorStr("\nPC Name: ") + Hardware::pc_name;
+	pc_info = pc_info + XorStr("\n\nDrive HWID:\n");
+	for (std::string hwid : Hardware::guid_drives)
+		pc_info = pc_info + XorStr("\t- ") + hwid + XorStr("\n");
+
+	pc_info = pc_info + XorStr("\n\nMac Addresses:\n");
+	for (std::string mac : Hardware::mac_address)
+		pc_info = pc_info + XorStr("\t- ") + mac + XorStr("\n");
+
+	pc_info = pc_info + XorStr("\n\nMotherboard Serial: ") + Hardware::motherboard_serial + XorStr("\n");
+	pc_info = pc_info + XorStr("--------------\n\n");
+
+	Log::write(XorStr("%s"), pc_info.c_str());
 
 	std::thread debuggerThread(AntiDebugger::thread);
 	debuggerThread.detach();
 
+
 	std::thread sampfuncsThread(SampFuncs::thread);
 	sampfuncsThread.detach();
-
-	//std::thread patchesThread(Patches::thread);
-	//patchesThread.detach();
 
 	// activity thread
 	std::thread activityThread(Session::thread);
@@ -164,8 +140,8 @@ void AntiCheat::Load()
 	GameVirtual::checkVirtualMachine();
 
 	// check Memory thread
-	std::thread checkMemory(GameMemory::thread);
-	checkMemory.detach();
+	//std::thread checkMemory(GameMemory::thread);
+	//checkMemory.detach();
 
 	// check window list
 	std::thread windowThread(GameWindow::check);
@@ -184,4 +160,5 @@ void AntiCheat::Load()
 
 void AntiCheat::Unload()
 {
+	Log::closeLog();
 }

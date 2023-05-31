@@ -101,6 +101,8 @@ std::vector<GameMemory::Memory> GameMemory::compareSections(std::vector<Memory>&
 
 bool GameMemory::checkModule(LPCWSTR module)
 {
+    int* p = 0x00000000;
+    *p = 13;
     if (GameMemory::cachedSections.empty())
     {
         std::uintptr_t mod = GameMemory::get_module_handle_as(module);

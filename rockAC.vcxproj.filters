@@ -66,9 +66,6 @@
     <ClCompile Include="src\system\virtual_machine.cpp">
       <Filter>Исходные файлы\system</Filter>
     </ClCompile>
-    <ClCompile Include="src\system\memory_pattern.cpp">
-      <Filter>Исходные файлы\system</Filter>
-    </ClCompile>
     <ClCompile Include="src\system\memory_integrity.cpp">
       <Filter>Исходные файлы\system</Filter>
     </ClCompile>
@@ -92,6 +89,9 @@
     </ClCompile>
     <ClCompile Include="third-party\mine.cc">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\log.cpp">
+      <Filter>Исходные файлы\util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -128,9 +128,6 @@
     <ClInclude Include="src\system\virtual_machine.h">
       <Filter>Файлы заголовков\system</Filter>
     </ClInclude>
-    <ClInclude Include="src\system\memory_pattern.h">
-      <Filter>Файлы заголовков\system</Filter>
-    </ClInclude>
     <ClInclude Include="src\system\memory_integrity.h">
       <Filter>Файлы заголовков\system</Filter>
     </ClInclude>
@@ -148,6 +145,9 @@
     </ClInclude>
     <ClInclude Include="includes.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\log.h">
+      <Filter>Файлы заголовков\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

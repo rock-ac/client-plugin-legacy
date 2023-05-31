@@ -27,6 +27,8 @@ bool AntiDebugger::closeDebuggers()
 		info.method = XorStr("pd64");
 		Report::sendDebuggerReport(&info);
 
+		Log::write(XorStr("[DETECT] found pd64.exe debugger"));
+
 		closed++;
 	}
 
@@ -42,6 +44,8 @@ bool AntiDebugger::closeDebuggers()
 		Report::DebuggerInfo info;
 		info.method = XorStr("Process Hacker");
 		Report::sendDebuggerReport(&info);
+
+		Log::write(XorStr("[DETECT] found ProcessHacker.exe debugger"));
 
 		closed++;
 	}
@@ -59,6 +63,8 @@ bool AntiDebugger::closeDebuggers()
 		info.method = XorStr("IDA");
 		Report::sendDebuggerReport(&info);
 
+		Log::write(XorStr("[DETECT] found ida.exe debugger"));
+
 		closed++;
 	}
 
@@ -74,6 +80,8 @@ bool AntiDebugger::closeDebuggers()
 		Report::DebuggerInfo info;
 		info.method = XorStr("IDA x64");
 		Report::sendDebuggerReport(&info);
+
+		Log::write(XorStr("[DETECT] found ida64.exe debugger"));
 
 		closed++;
 	}
@@ -91,6 +99,8 @@ bool AntiDebugger::closeDebuggers()
 		info.method = XorStr("dumpcap");
 		Report::sendDebuggerReport(&info);
 
+		Log::write(XorStr("[DETECT] found dumpcap.exe debugger"));
+
 		closed++;
 	}
 
@@ -106,6 +116,8 @@ bool AntiDebugger::closeDebuggers()
 		Report::DebuggerInfo info;
 		info.method = XorStr("Wireshark");
 		Report::sendDebuggerReport(&info);
+
+		Log::write(XorStr("[DETECT] found Wireshark.exe debugger"));
 
 		closed++;
 	}
@@ -123,6 +135,8 @@ bool AntiDebugger::closeDebuggers()
 		info.method = XorStr("tcpdump");
 		Report::sendDebuggerReport(&info);
 
+		Log::write(XorStr("[DETECT] found tcpdump.exe debugger"));
+
 		closed++;
 	}
 
@@ -139,6 +153,8 @@ bool AntiDebugger::closeDebuggers()
 		info.method = XorStr("WinDBG");
 		Report::sendDebuggerReport(&info);
 		
+		Log::write(XorStr("[DETECT] found widbg.exe debugger"));
+
 		closed++;
 	}
 
@@ -154,6 +170,8 @@ bool AntiDebugger::closeDebuggers()
 		Report::DebuggerInfo info;
 		info.method = XorStr("OllyDBG");
 		Report::sendDebuggerReport(&info);
+
+		Log::write(XorStr("[DETECT] found OLLYDBG.EXE debugger"));
 
 		closed++;
 	}
@@ -287,10 +305,12 @@ bool AntiDebugger::sendDebugString()
 
 void AntiDebugger::thread()
 {
+	Log::write(XorStr("AntiDebugger::thread() started"));
 	while (true)
 	{
 		if (closeDebuggers())
 		{
+			Log::write(XorStr("[ERROR] Called error 0x1000009 (closeDebuggers())"));
 			Game::TerminateGame(0, XorStr("0x1000009"));
 		}
 
@@ -299,6 +319,9 @@ void AntiDebugger::thread()
 			Report::DebuggerInfo info;
 			info.method = XorStr("PEB");
 			Report::sendDebuggerReport(&info);
+
+			Log::write(XorStr("[DETECT] found PEB debugger"));
+			Log::write(XorStr("[ERROR] Called error 0x1000009 (checkPEB())"));
 
 			Game::TerminateGame(0, XorStr("0x1000009"));
 		}
@@ -309,6 +332,9 @@ void AntiDebugger::thread()
 			info.method = XorStr("IsRemoteDebuggerPresent");
 			Report::sendDebuggerReport(&info);
 
+			Log::write(XorStr("[DETECT] found IsRemoteDebugger debugger"));
+			Log::write(XorStr("[ERROR] Called error 0x1000009 (checkRemoteDebugger())"));
+
 			Game::TerminateGame(0, XorStr("0x1000009"));
 		}
 
@@ -317,6 +343,10 @@ void AntiDebugger::thread()
 			Report::DebuggerInfo info;
 			info.method = XorStr("IsDebuggerPresent");
 			Report::sendDebuggerReport(&info);
+
+			Log::write(XorStr("[DETECT] found IsDebugger debugger"));
+			Log::write(XorStr("[ERROR] Called error 0x1000009 (checkDebugger())"));
+
 			Game::TerminateGame(0, XorStr("0x1000009"));
 		}
 
@@ -325,6 +355,9 @@ void AntiDebugger::thread()
 			Report::DebuggerInfo info;
 			info.method = XorStr("HandleException");
 			Report::sendDebuggerReport(&info);
+
+			Log::write(XorStr("[DETECT] found HandleException debugger"));
+			Log::write(XorStr("[ERROR] Called error 0x1000009 (checkHandleException())"));
 
 			Game::TerminateGame(0, XorStr("0x1000009"));
 		}
@@ -335,6 +368,9 @@ void AntiDebugger::thread()
 			info.method = XorStr("SingleStep");
 			Report::sendDebuggerReport(&info);
 
+			Log::write(XorStr("[DETECT] found SingleStep debugger"));
+			Log::write(XorStr("[ERROR] Called error 0x1000009 (checkSignelStep())"));
+
 			Game::TerminateGame(0, XorStr("0x1000009"));
 		}
 
@@ -343,6 +379,9 @@ void AntiDebugger::thread()
 			Report::DebuggerInfo info;
 			info.method = XorStr("int3");
 			Report::sendDebuggerReport(&info);
+
+			Log::write(XorStr("[DETECT] found int3 debugger"));
+			Log::write(XorStr("[ERROR] Called error 0x1000009 (int3())"));
 
 			Game::TerminateGame(0, XorStr("0x1000009"));
 		}
@@ -353,6 +392,9 @@ void AntiDebugger::thread()
 			info.method = XorStr("int2d");
 			Report::sendDebuggerReport(&info);
 
+			Log::write(XorStr("[DETECT] found int2d debugger"));
+			Log::write(XorStr("[ERROR] Called error 0x1000009 (int2d())"));
+
 			Game::TerminateGame(0, XorStr("0x1000009"));
 		}
 
@@ -361,6 +403,9 @@ void AntiDebugger::thread()
 			Report::DebuggerInfo info;
 			info.method = XorStr("DebugString");
 			Report::sendDebuggerReport(&info);
+
+			Log::write(XorStr("[DETECT] found DebugString debugger"));
+			Log::write(XorStr("[ERROR] Called error 0x1000009 (sendDebugString())"));
 
 			Game::TerminateGame(0, XorStr("0x1000009"));
 		}

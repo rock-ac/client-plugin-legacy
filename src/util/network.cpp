@@ -12,6 +12,25 @@ Developed by savvin & 0Z0SK0
 
 long Network::lastError = 0;
 
+DWORD Network::init()
+{
+    //const char* libraryPath = (Core::getCurrentDirectory() + XorStr("\\libcurl.dll")).c_str();
+    HMODULE library = LI_FN(LoadLibraryA)(XorStr("libcurl.dll"));
+    if (!library)
+    {
+        library = GetModuleHandleA(XorStr("libcurl.dll"));
+        if (library == NULL)
+        {
+            return GetLastError();
+        }
+        else
+        {
+            LI_FN(curl_global_init).get()(CURL_GLOBAL_DEFAULT);
+        }
+    }
+    return 0;
+}
+
 void Network::setDefaultCURLOptions(CURL* curl)
 {
     LI_FN(curl_easy_setopt).safe()(curl, CURLOPT_FOLLOWLOCATION, 1L);
@@ -19,6 +38,7 @@ void Network::setDefaultCURLOptions(CURL* curl)
     LI_FN(curl_easy_setopt).safe()(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
     LI_FN(curl_easy_setopt).safe()(curl, CURLOPT_USERAGENT, XorStr("STALKER/1.0"));
     LI_FN(curl_easy_setopt).safe()(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+    LI_FN(curl_easy_setopt).safe()(curl, CURLOPT_NOSIGNAL, 1);
 }
 
 bool Network::file_sendRequest(const char* url, const char* out)
@@ -29,6 +49,7 @@ bool Network::file_sendRequest(const char* url, const char* out)
     CURL* curl;
 
     // Инициализация CURL.
+    LI_FN(curl_global_init).get()(CURL_GLOBAL_DEFAULT);
     curl = LI_FN(curl_easy_init).get()();
 
     // Если CURL готов к работе.
@@ -58,6 +79,8 @@ bool Network::file_sendRequest(const char* url, const char* out)
         {
             Network::lastError = httpStatusCode;
 
+            Log::write(XorStr("[ERROR] Failed to perform request file_sendRequest() httpStatusCode: %ld"), httpStatusCode);
+
             LI_FN(curl_easy_cleanup).get()(curl);
             fclose(fp);
             return false;
@@ -66,13 +89,14 @@ bool Network::file_sendRequest(const char* url, const char* out)
     LI_FN(curl_easy_cleanup).get()(curl);
     return false;
 }
-void Network::void_sendRequest(const char* url)
+long Network::void_sendRequest(const char* url)
 {
     long httpStatusCode = 0;
 
     CURL* curl;
-    curl = LI_FN(curl_easy_init).in(LI_MODULE("libcurl.dll").cached())();
-
+    LI_FN(curl_global_init).get()(CURL_GLOBAL_DEFAULT);
+    curl = LI_FN(curl_easy_init).get()();
+    
     if (curl)
     {
         setDefaultCURLOptions(curl);
@@ -102,20 +126,24 @@ void Network::void_sendRequest(const char* url)
         LI_FN(curl_easy_setopt).get()(curl, CURLOPT_POSTFIELDS, sdata);
 
         CURLcode result = LI_FN(curl_easy_perform).get()(curl);
-        if (result == CURLE_OK)
-        {
-            LI_FN(curl_easy_getinfo).get()(curl, CURLINFO_RESPONSE_CODE, &httpStatusCode);
+        LI_FN(curl_easy_getinfo).get()(curl, CURLINFO_RESPONSE_CODE, &httpStatusCode);
+        Network::lastError = httpStatusCode;
 
-            Network::lastError = httpStatusCode;
+        if (result == CURLE_OK && httpStatusCode != 200)
+        {
+            Log::write(XorStr("[ERROR] Failed to perform request void_sendRequest(%s) httpStatusCode: %ld"), surl.c_str(), httpStatusCode);
         }
     }
     LI_FN(curl_easy_cleanup).get()(curl);
+
+    return httpStatusCode;
 }
 int Network::int_sendRequest(const char* url)
 {
     long httpStatusCode = 0;
 
     CURL* curl;
+    LI_FN(curl_global_init).get()(CURL_GLOBAL_DEFAULT);
     curl = LI_FN(curl_easy_init).get()();
 
     if (curl)
@@ -140,6 +168,8 @@ int Network::int_sendRequest(const char* url)
         {
             Network::lastError = httpStatusCode;
             LI_FN(curl_easy_cleanup).get()(curl);
+
+            Log::write(XorStr("[ERROR] Failed to perform request int_sendRequest(%s) httpStatusCode: %ld"), url, httpStatusCode);
             return 9999;
         }
     }
@@ -153,6 +183,7 @@ bool Network::bool_sendRequest(const char* url, bool out)
 
     CURL* curl;
 
+    LI_FN(curl_global_init).get()(CURL_GLOBAL_DEFAULT);
     curl = LI_FN(curl_easy_init).get()();
 
     if (curl)
@@ -178,6 +209,8 @@ bool Network::bool_sendRequest(const char* url, bool out)
         else
         {
             Network::lastError = httpStatusCode;
+
+            Log::write(XorStr("[ERROR] Failed to perform request bool_sendRequest(%s) httpStatusCode: %ld"), url, httpStatusCode);
             LI_FN(curl_easy_cleanup).get()(curl);
             return false;
         }
@@ -191,6 +224,7 @@ std::string Network::string_sendRequest(const char* url)
     long httpStatusCode = 0;
 
     CURL* curl;
+    LI_FN(curl_global_init).get()(CURL_GLOBAL_DEFAULT);
     curl = LI_FN(curl_easy_init).get()();
 
     if (curl)
@@ -214,21 +248,31 @@ std::string Network::string_sendRequest(const char* url)
             LI_FN(curl_easy_cleanup).get()(curl);
             return out;
         }
+        else if (result == CURLE_OK && httpStatusCode == 403)
+        {
+            LI_FN(curl_easy_cleanup).get()(curl);
+
+            Log::write(XorStr("[ERROR] Failed to perform request string_sendRequest(%s) httpStatusCode: %ld"), url, httpStatusCode);
+            return "SESNF";
+        }
         else
         {
             LI_FN(curl_easy_cleanup).get()(curl);
-            return "";
+
+            Log::write(XorStr("[ERROR] Failed to perform request string_sendRequest(%s) httpStatusCode: %ld"), url, httpStatusCode);
+            return "FAILED";
         }
     }
     LI_FN(curl_easy_cleanup).get()(curl);
 
-    return "";
+    return "FAILED";
 }
 bool Network::vectorstring_sendRequest(const char* url, std::vector<std::string> &out)
 {
     long httpStatusCode = 0;
 
     CURL* curl;
+    LI_FN(curl_global_init).get()(CURL_GLOBAL_DEFAULT);
     curl = LI_FN(curl_easy_init).get()();
 
     if (curl)
@@ -267,6 +311,8 @@ bool Network::vectorstring_sendRequest(const char* url, std::vector<std::string>
         else
         {
             Network::lastError = httpStatusCode;
+
+            Log::write(XorStr("[ERROR] Failed to perform request vectorstring_sendRequest(%s) httpStatusCode: %ld"), url, httpStatusCode);
             LI_FN(curl_easy_cleanup).get()(curl);
             return false;
         }
